@@ -1,0 +1,22 @@
+feature,psi,status
+tenure_days,2.3003406769676342,major shift
+n_purchase_days,1.085322550157282,major shift
+inv_count_365,0.582841072723675,major shift
+median_interval_days,0.47000193605292584,major shift
+rev_365_log,0.3651652026993639,major shift
+rev_trend,0.2630965836676723,major shift
+inv_count_90_prev,0.23792637500645622,moderate shift
+freq_trend,0.1935282766973101,moderate shift
+recency_days,0.10393463803194525,moderate shift
+interval_cv,0.09087160589490288,stable
+inv_count_90,0.08687170546369337,stable
+rev_90_log,0.07405116793369933,stable
+recency_to_interval,0.04030744518147274,stable
+inv_count_30,0.02472135447982001,stable
+inv_count_180,0.009624020250016123,stable
+avg_invoice_value_180_log,0.007692337354155537,stable
+return_rate_180,0.007463099106734983,stable
+n_products_180,0.007064455957192323,stable
+rev_180_log,0.0059576040271219766,stable
+avg_items_per_invoice_180,0.0025890339294107707,stable
+is_uk,0.0,stable

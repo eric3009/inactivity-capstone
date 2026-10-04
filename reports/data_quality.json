@@ -1,0 +1,20 @@
+{
+  "rows_raw": 1067371,
+  "duplicate_rows_dropped": 34337,
+  "missing_customer_id_rows": 235151,
+  "missing_customer_id_share": 0.22763142355430702,
+  "non_product_rows_dropped": 3662,
+  "cancellation_return_lines_kept": 17586,
+  "other_anomalous_lines_dropped": 60,
+  "quantity_p99_9": 576.0,
+  "extreme_quantity_lines": 745,
+  "rows_clean": 794161,
+  "customers": 5875,
+  "date_min": "2009-12-01",
+  "date_max": "2011-12-09",
+  "source_url": "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip",
+  "source_bytes": 45622278,
+  "source_sha256": "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980",
+  "hash_matches_expected": true,
+  "source": "uci-online-retail-ii"
+}

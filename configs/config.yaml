@@ -1,0 +1,52 @@
+project:
+  name: inactivity-capstone
+  seed: 42
+
+data:
+  # UCI Online Retail II (CC BY 4.0). The pipeline downloads and caches it on first run.
+  url: "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip"
+  raw_dir: data/raw
+  interim_dir: data/interim
+  xlsx_name: online_retail_II.xlsx
+  # SHA-256 of the workbook the reported results were built on; a different file triggers a warning.
+  expected_sha256: "bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980"
+  clean_file: transactions_clean.parquet
+
+cleaning:
+  # Real product codes start with five digits; POST, M, D, BANK CHARGES, ADJUST etc. do not.
+  product_code_regex: '^\d{5}'
+
+snapshots:
+  start: "2010-02-28"
+  freq: ME                 # month-end snapshots (history is only ~24 months)
+  horizon_days: 90         # label: no qualifying purchase in the next 90 days
+  activity_window_days: 180  # eligible = at least one purchase in the previous 180 days
+  segment_k: 3.0           # segment-aware label: gap > k x the customer's own median interval
+
+splits:
+  # A snapshot belongs to the block it falls in, and is dropped (embargo) unless its label
+  # window closes before the next block starts. Training starts at the first snapshot.
+  val_start: "2010-08-31"
+  cal_start: "2011-01-31"
+  test_start: "2011-06-30"
+
+modelling:
+  lgbm_trials: 60
+  early_stopping_rounds: 50
+  logreg_C: [0.01, 0.1, 1.0, 10.0]
+  bootstrap_reps: 500
+  top_share: 0.10
+  bands:
+    high_top_share: 0.10    # top 10% of scores in the calibration period -> High
+    medium_top_share: 0.30  # next 20% -> Medium
+
+sensitivity:
+  horizons: [60, 90, 120]
+
+tracking:
+  mlflow: true
+  experiment: inactivity-capstone
+
+paths:
+  artifacts_dir: artifacts
+  reports_dir: reports

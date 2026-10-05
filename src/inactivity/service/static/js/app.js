@@ -79,4 +79,15 @@ async function boot() {
   window.addEventListener("hashchange", route);
   route();
 }
+let lastW = window.innerWidth, resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (Math.abs(window.innerWidth - lastW) < 60 || !S.eda) return;
+    lastW = window.innerWidth;                      // charts are drawn to the space they have, so redraw at a new size
+    Object.keys(cache).forEach((k) => delete cache[k]);
+    $("page").textContent = "";
+    route();
+  }, 250);
+});
 boot();

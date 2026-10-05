@@ -5,11 +5,19 @@ const css = (n) => `var(--${n})`;
 
 /** Draw width matched to the space the chart will occupy, so text is the same size on every chart and screen. */
 export function chartW(half) {
+  const host = document.getElementById("page");
   const vw = window.innerWidth;
-  const content = Math.min(vw >= 980 ? vw - 236 - 64 : vw - 32, 1100);
-  const w = half && vw >= 880 ? (content - 20) / 2 - 44 : content - 44;
-  return Math.round(Math.max(300, w));
+  let inner;
+  if (host && host.clientWidth > 0) {
+    const cs = getComputedStyle(host);
+    inner = host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  } else {
+    inner = vw >= 980 ? vw - 260 - 100 : vw - 32;
+  }
+  const w = half && vw >= 880 ? (inner - 18) / 2 - 42 : inner - 42;
+  return Math.round(Math.max(280, w));
 }
+const autoH = (w, ratio = 0.3, lo = 250, hi = 440) => Math.round(Math.min(hi, Math.max(lo, w * ratio)));
 
 export function niceTicks(min, max, n = 5) {
   if (max === min) return [min];
@@ -45,7 +53,7 @@ function fitWhenVisible(svg, w, h) {
 }
 
 /** Lines over categorical x. series: [{name,color,data[],dash?,hidden?}] */
-export function lineChart({ half = false, w = chartW(half), h = 300, labels, series, yFmt = (v) => v, yMin, yMax, xEvery = 1, yTitle, tip, label, xRotate = false }) {
+export function lineChart({ half = false, w = chartW(half), h = autoH(w), labels, series, yFmt = (v) => v, yMin, yMax, xEvery = 1, yTitle, tip, label, xRotate = false }) {
   const L = 62, R = 16, T = 14, B = xRotate ? 62 : 44;
   const pw = w - L - R, ph = h - T - B, n = labels.length;
   const s = frame(w, h, label);
@@ -124,7 +132,7 @@ export function barChart({ half = false, w = chartW(half), rowH = 28, items, fmt
  * Columns per bin. series: [{name,color,values[]}] drawn stacked (or grouped, or on a log axis).
  * line: {name,color,values[],fmt} drawn against a right-hand rate axis.
  */
-export function columnChart({ half = false, w = chartW(half), h = 300, labels, series, line, yFmt = (v) => v, mode = "stack", log = false, tip, label, xRotate = true }) {
+export function columnChart({ half = false, w = chartW(half), h = autoH(w), labels, series, line, yFmt = (v) => v, mode = "stack", log = false, tip, label, xRotate = true }) {
   const L = 58, R = line ? 52 : 16, T = 14, B = xRotate ? 74 : 44;
   const pw = w - L - R, ph = h - T - B, n = labels.length, slot = pw / n;
   const s = frame(w, h, label);
@@ -184,7 +192,7 @@ export function columnChart({ half = false, w = chartW(half), h = 300, labels, s
 }
 
 /** Scatter with optional log x axis; click and hover per point. points: [{x,y,id,color?}] */
-export function scatterChart({ half = false, w = chartW(half), h = 380, points, xLog = false, xFmt = (v) => v, yFmt = (v) => v, xTitle, yTitle, onClick, selectedId, tip, yMin = 0, yMax = 1, label }) {
+export function scatterChart({ half = false, w = chartW(half), h = autoH(w, 0.4, 340, 560), points, xLog = false, xFmt = (v) => v, yFmt = (v) => v, xTitle, yTitle, onClick, selectedId, tip, yMin = 0, yMax = 1, label }) {
   const L = 62, R = 16, T = 14, B = 46;
   const pw = w - L - R, ph = h - T - B;
   const s = frame(w, h, label);
@@ -226,7 +234,8 @@ export function scatterChart({ half = false, w = chartW(half), h = 380, points, 
 
 /** Correlation-style heatmap. Positive = oxide red, negative = pine; dimmed below minAbs. */
 export function heatmap({ labels, matrix, onRow, label }) {
-  const n = labels.length, labelW = 188, c = 21, T = 8;
+  const n = labels.length, labelW = 188, T = 8;
+  const c = Math.max(21, Math.min(36, Math.floor((chartW(false) - labelW - 8) / n)));
   const w = labelW + n * c + 8, h = T + n * c + 8;
   const s = frame(w, h, label);
   const cells = [];

@@ -1,0 +1,12 @@
+# Render Blueprint: deploys the Docker image straight from the repository.
+services:
+  - type: web
+    name: inactivity-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: MODEL_PATH
+        value: /app/artifacts/model_bundle.joblib

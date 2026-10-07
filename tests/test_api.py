@@ -78,6 +78,7 @@ def test_ui_page_is_served(client):
     assert "Customer inactivity risk" in r.text and "/ui/js/app.js" in r.text
     for path in ("/ui/style.css", "/ui/js/app.js", "/ui/js/charts.js", "/ui/js/common.js"):
         assert client.get(path).status_code == 200, path
+    assert "image/svg" in client.get("/ui/favicon.svg").headers["content-type"]
     for page in ("overview", "explore", "model", "worklist", "customer", "try", "about"):
         assert client.get(f"/ui/js/pages/{page}.js").status_code == 200, page
 

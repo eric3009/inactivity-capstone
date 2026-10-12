@@ -1,4 +1,4 @@
-"""Command line: `python -m inactivity <prepare|train|all|predict|serve|demo> [--synthetic]`."""
+"""Command line: `python -m inactivity <prepare|train|all|predict|serve|demo|track> [--synthetic]`."""
 from __future__ import annotations
 
 import argparse
@@ -8,7 +8,7 @@ import warnings
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="inactivity", description=__doc__)
-    ap.add_argument("command", choices=["prepare", "train", "all", "predict", "serve", "demo"])
+    ap.add_argument("command", choices=["prepare", "train", "all", "predict", "serve", "demo", "track"])
     ap.add_argument("--config", default=None, help="path to a YAML config (default configs/config.yaml)")
     ap.add_argument("--synthetic", action="store_true",
                     help="use generated data instead of downloading Online Retail II (offline smoke run)")
@@ -29,6 +29,12 @@ def main(argv=None) -> int:
     if a.command == "serve":
         import uvicorn
         uvicorn.run("inactivity.service.app:app", host=a.host, port=a.port)
+        return 0
+
+    if a.command == "track":
+        from .tracking import log_run, tracking_uri
+        rid = log_run(cfg)
+        print(f"Logged run {rid} to {tracking_uri()}" if rid else "Tracking is switched off in the config.")
         return 0
 
     from .data import prepare

@@ -242,19 +242,10 @@ def _plots(main: dict, reports_dir) -> None:
         print(f"[warn] SHAP summary skipped: {e}")
 
 
-def _track(cfg: dict, params: dict, metrics: dict, reports_dir) -> None:
-    if not cfg["tracking"]["mlflow"]:
-        return
+def _track(cfg: dict, reports_dir, art_dir) -> None:
     try:
-        import os
-        os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")   # simple local file store; fine for a one-person project
-        import mlflow
-        mlflow.set_tracking_uri("file:" + str(ROOT / "mlruns"))
-        mlflow.set_experiment(cfg["tracking"]["experiment"])
-        with mlflow.start_run():
-            mlflow.log_params(params)
-            mlflow.log_metrics(metrics)
-            mlflow.log_artifacts(str(reports_dir))
+        from .tracking import log_run
+        log_run(cfg, reports_dir, art_dir)
     except Exception as e:
         print(f"[warn] MLflow tracking skipped: {e}")
 
@@ -321,8 +312,7 @@ def run(cfg: dict, synthetic: bool = False, sensitivity: bool = True) -> dict:
                   "reasons": [" | ".join(r["text"] for r in x) for x in rc]}).to_csv(reports / "sample_scores.csv", index=False)
     (reports / "results.md").write_text(results_markdown(main, sens, quality), encoding="utf8")
     _plots(main, reports)
-    _track(cfg, {"source": bundle["source"], "horizon": H, "version": version, "lgbm_trials": cfg["modelling"]["lgbm_trials"]},
-           {f"test_{k}": v for k, v in main["metrics"]["lgbm_cal"].items() if isinstance(v, float) and not np.isnan(v)}, reports)
+    _track(cfg, reports, art)
     from .uidata import build_ui_data
     build_ui_data(cfg, tx, art, reports)
     return {"main": main, "sensitivity": sens, "bundle": bundle}

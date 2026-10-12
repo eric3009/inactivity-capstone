@@ -43,7 +43,7 @@ pip install -r requirements.lock.txt && pip install -e . --no-deps   # exact tes
 
 python -m inactivity all        # download data, clean, train, evaluate, write artifacts and reports
 python -m inactivity predict --date 2011-08-31      # score every customer at a date (no retraining)
-python -m pytest -q             # 43 tests, no data download needed
+python -m pytest -q             # 45 tests, no data download needed
 python -m inactivity serve      # API on http://localhost:8000  (docs at /docs)
 ```
 
@@ -68,6 +68,28 @@ the top three reasons, and the model version.
   with the hash in `configs/config.yaml`; a different file triggers a warning.
 
 If the download is blocked, place `online_retail_II.xlsx` (from the UCI zip) in `data/raw/` and rerun.
+
+## Experiment tracking (MLflow, optionally on DagsHub)
+
+Each training run logs its parameters, the test and validation metrics of every model, the 60-trial tuning curve, the
+reports and the model bundle to MLflow. The same logging can be run on its own against existing results:
+
+```bash
+python -m inactivity track
+```
+
+With nothing configured it writes to a local `mlruns/` folder. To send it to a hosted MLflow server such as
+[DagsHub](https://dagshub.com), set the standard MLflow variables first (the token is a secret: set it in your own
+shell, never in a file in the repository):
+
+```bash
+export MLFLOW_TRACKING_URI=https://dagshub.com/<user>/<repo>.mlflow
+export MLFLOW_TRACKING_USERNAME=<your DagsHub user name>
+export MLFLOW_TRACKING_PASSWORD=<your DagsHub access token>
+python -m inactivity track
+```
+
+On PowerShell use `$env:MLFLOW_TRACKING_URI = "..."` and so on. `--no-mlflow` turns tracking off.
 
 ## Web UI
 
@@ -231,7 +253,7 @@ src/inactivity/
   service/                   FastAPI app, schemas and the single-page web UI (static/index.html)
   demo.py, uidata.py         build the demo customers, worklist and trust-page data for the UI
   synthetic.py               generated raw-format data for tests and offline smoke runs
-tests/                       43 tests: cleaning, leakage, embargo, metrics, API and training/serving parity
+tests/                       45 tests: cleaning, leakage, embargo, metrics, API and training/serving parity
 artifacts/                   trained bundle (committed so the container builds without retraining)
 reports/                     metrics, plots, drift and data-quality outputs written by the pipeline
 Dockerfile, docker-compose.yml, requirements*.txt, Makefile, scripts/

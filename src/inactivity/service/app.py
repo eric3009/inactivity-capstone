@@ -15,15 +15,16 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import gzip
 import json
 import warnings
 
 import joblib
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from ..explain import reason_codes
@@ -77,26 +78,40 @@ def create_app(model_path: str | os.PathLike | None = None) -> FastAPI:
     def ui():
         return (STATIC / "index.html").read_text(encoding="utf8")
 
-    def _json_file(name: str):
+    _cache: dict[str, tuple[float, bytes, bytes]] = {}
+
+    def _json_file(name: str, request: Request):
+        """Serve a prepared JSON file as-is. The bytes (and a gzipped copy) are cached until the file changes,
+        so the large worklist is not parsed and re-encoded on every request."""
         f = path.parent / name
         if not f.exists():
             raise HTTPException(404, f"{name} not found; run `python -m inactivity demo`.")
-        return json.loads(f.read_text(encoding="utf8"))
+        mtime = f.stat().st_mtime
+        hit = _cache.get(name)
+        if hit is None or hit[0] != mtime:
+            raw = f.read_bytes()
+            hit = (mtime, raw, gzip.compress(raw, 6))
+            _cache[name] = hit
+        gz = "gzip" in request.headers.get("accept-encoding", "")
+        headers = {"Vary": "Accept-Encoding", "Cache-Control": "no-cache"}
+        if gz:
+            headers["Content-Encoding"] = "gzip"
+        return Response(content=hit[2] if gz else hit[1], media_type="application/json", headers=headers)
 
     @app.get("/worklist")
-    def worklist():
+    def worklist(request: Request):
         """Every eligible customer at the final test snapshot, ranked, with spend, reasons and order history."""
-        return _json_file("worklist.json")
+        return _json_file("worklist.json", request)
 
     @app.get("/eda")
-    def eda():
+    def eda(request: Request):
         """Exploratory aggregates (activity over time, distributions, feature explorer, correlations)."""
-        return _json_file("eda.json")
+        return _json_file("eda.json", request)
 
     @app.get("/trust")
-    def trust():
+    def trust(request: Request):
         """Evaluation evidence behind the 'how far can I trust it' page."""
-        return _json_file("trust.json")
+        return _json_file("trust.json", request)
 
     @app.get("/demo/customers")
     def demo_customers():

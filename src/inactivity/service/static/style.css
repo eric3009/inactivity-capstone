@@ -185,7 +185,12 @@ ul.reasons li { padding: 5px 0; border-bottom: 1px solid var(--line); font-size:
 .linkcard span { font-size: .84rem; color: var(--muted); }
 .gloss dt { font-weight: 700; margin-top: 12px; }
 .gloss dd { margin: 2px 0 0; color: var(--muted); max-width: 70ch; }
-.loading { padding: 40px 0; color: var(--muted); }
+.loading { padding: 56px 0; display: flex; justify-content: center; }
+.spinner { display: inline-block; width: 2.2rem; height: 2.2rem; border: 3px solid var(--line); border-top-color: var(--signal); border-radius: 50%; animation: spin .8s linear infinite; }
+.spinner.small { width: 1.2rem; height: 1.2rem; border-width: 2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.4s; } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* wrap long segmented controls and keep controls inside the card on narrow screens */
 .segmented { flex-wrap: wrap; max-width: 100%; }

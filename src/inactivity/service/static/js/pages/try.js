@@ -28,9 +28,13 @@ export function render() {
   // ---- real example
   const c1 = card("Replay a real customer", "Pick a customer from the held-out months and compare the prediction with what happened.");
   const out1 = el("div");
-  c1.appendChild(el("p", "muted small", "Loading examples..."));
+  const wait = el("div", "loading");
+  wait.setAttribute("role", "status");
+  wait.appendChild(el("span", "spinner small"));
+  wait.appendChild(el("span", "sr-only", "Loading examples"));
+  c1.appendChild(wait);
   api("/demo/customers").then((list) => {
-    c1.querySelector("p").remove();
+    wait.remove();
     const s = select(list.map((d, i) => [String(i), `Customer ${d.customer_id} (${d.snapshot_date})`]), "0", () => {});
     const btn = el("button", "btn", "Score"); btn.type = "button";
     const go = async () => {

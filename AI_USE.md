@@ -44,6 +44,12 @@
 
 What I personally read, ran or re-derived, and what I can explain and defend:
 
+I chose the topic and the dataset and directed the design of the project, including each addition after the first version
+(the drift alert, the SVM and K-Means, GitHub Actions CI, the statistical tests, the feature-selection comparison and the
+anomaly check). I reviewed the reports, results and screenshots that the AI tool produced, including the weaker findings,
+and I published the repository, set it to public and checked that the GitHub Actions runs passed. The code, tests, report
+and slides were written by the AI tool as described above, and I take responsibility for them as submitted.
+
 I understand this project is individually assessed and I can explain and defend every part of it.
 
 Name: Eric Muriuki Kiama (120890)   Date: 19 November 2026

@@ -3,6 +3,8 @@
     python scripts/make_figures.py
 """
 import json
+
+import numpy as np
 from pathlib import Path
 
 import matplotlib
@@ -31,7 +33,7 @@ def save(fig, name):
 # 1. model comparison (ROC-AUC with 95% intervals)
 order = [("rule_recency", "Days since last order (rule)", AMBER), ("tree_depth4", "Decision tree (depth 4)", GREY),
          ("logreg_cal", "Logistic regression", GREEN), ("mlp_challenger", "Neural network (MLP)", GREY),
-         ("random_forest", "Random forest", GREEN), ("bgnbd", "BG/NBD (classic model)", GREY), ("lgbm_cal", "LightGBM (served)", BLUE)]
+         ("svm_rbf", "SVM (RBF kernel)", GREY), ("random_forest", "Random forest", GREEN), ("bgnbd", "BG/NBD (classic model)", GREY), ("lgbm_cal", "LightGBM (served)", BLUE)]
 fig, ax = plt.subplots(figsize=(7.6, 3.6))
 for i, (k, label, col) in enumerate(order):
     y = len(order) - 1 - i
@@ -172,3 +174,37 @@ ax.add_patch(FancyArrowPatch((38.4, 5.5), (41.6, 5.5), arrowstyle="-|>", mutatio
 ax.add_patch(FancyArrowPatch((66.4, 5.5), (69.6, 5.5), arrowstyle="-|>", mutation_scale=12, color=AMBER, lw=2))
 save(fig, "fig_architecture.png")
 print("figures written to", OUT)
+
+
+# 8. customer segments (K-Means on behaviour, profiled on the test period)
+seg_path = ROOT / "reports" / "segments.json"
+if seg_path.exists():
+    sg = json.loads(seg_path.read_text(encoding="utf8"))
+    names = {x["id"]: x["name"] for x in sg["segments"]}
+    palette = {x["id"]: c for x, c in zip(sg["segments"], ("#C0392B", "#D9A400", "#2E6FA8", "#2E8B57", "#7F8C8D", "#6C3483", "#16A085"))}   # distinct hues, independent of the theme palette
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9.6, 3.9), gridspec_kw={"width_ratios": [1.1, 1]})
+    pc = sg["pca_sample"]
+    for sid, nm in names.items():
+        pts = [(x, y) for x, y, g in zip(pc["x"], pc["y"], pc["segment"]) if g == sid]
+        a1.scatter([p[0] for p in pts], [p[1] for p in pts], s=7, alpha=0.55, color=palette[sid], label=nm)
+    xs, ys = np.array(pc["x"]), np.array(pc["y"])
+    a1.set_xlim(np.percentile(xs, 0.5) - 0.5, np.percentile(xs, 99.5) + 0.5)
+    a1.set_ylim(np.percentile(ys, 0.5) - 0.5, np.percentile(ys, 99.5) + 0.5)
+    a1.set_xlabel(f"PCA component 1 ({sg['pca_explained_variance'][0]:.0%} of variance)")
+    a1.set_ylabel(f"PCA component 2 ({sg['pca_explained_variance'][1]:.0%})")
+    a1.legend(frameon=False, fontsize=8.5, markerscale=2)
+    a1.set_title(f"K-Means, k = {sg['k']} (chosen by silhouette)", color=NAVY, fontsize=10)
+    rows = sorted(sg["segments"], key=lambda r: r["lapse_rate"])
+    ypos = range(len(rows))
+    a2.barh([i + 0.2 for i in ypos], [r["lapse_rate"] for r in rows], height=0.38, color=NAVY, label="Actually went quiet")
+    a2.barh([i - 0.2 for i in ypos], [r["mean_predicted"] for r in rows], height=0.38, color=AMBER, label="Model predicted")
+    a2.set_yticks(list(ypos))
+    a2.set_yticklabels([f"{r['name']} ({r['share']:.0%})" for r in rows], fontsize=8.5)
+    for i, r in zip(ypos, rows):
+        a2.text(max(r["lapse_rate"], r["mean_predicted"]) + 0.02, i, "ROC-AUC " + ("n/a" if r["model_roc_auc"] is None else f"{r['model_roc_auc']:.2f}"), va="center", fontsize=8, color=GREY)
+    a2.set_xlim(0, 1.15)
+    a2.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+    a2.legend(frameon=False, fontsize=8.5, loc="lower right")
+    a2.set_title("Lapse rate and model quality by segment (test period)", color=NAVY, fontsize=10)
+    save(fig, "fig_clusters.png")
+    print("clusters figure written")

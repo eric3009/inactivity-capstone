@@ -3,7 +3,7 @@ import { lineChart, barChart } from "../charts.js";
 
 const NAMES = {
   prevalence: "Base rate (no model)", rule_recency: "Rule: days since last order", logreg_raw: "Logistic regression", logreg_cal: "Logistic regression, calibrated",
-  tree_depth4: "Decision tree, depth 4", random_forest: "Random forest", mlp_challenger: "Neural net (MLP)", bgnbd: "BG/NBD probabilistic",
+  tree_depth4: "Decision tree, depth 4", random_forest: "Random forest", mlp_challenger: "Neural net (MLP)", svm_rbf: "SVM (RBF kernel)", bgnbd: "BG/NBD probabilistic",
   lgbm_raw: "LightGBM, raw", lgbm_cal: "LightGBM, calibrated (chosen)",
 };
 const redraw = (host, fn) => { host.textContent = ""; host.appendChild(fn()); };

@@ -18,6 +18,10 @@ DOCS = ROOT / "docs"
 m = json.loads((ROOT / "reports" / "metrics.json").read_text(encoding="utf8"))
 t = json.loads((ROOT / "artifacts" / "trust.json").read_text(encoding="utf8"))
 q = json.loads((ROOT / "reports" / "data_quality.json").read_text(encoding="utf8"))
+_dr = json.loads((ROOT / "reports" / "drift_check.json").read_text(encoding="utf8"))
+drift_score_psi = f"{_dr['score_psi']:.2f}"
+drift_slice_cur = f"{_dr['slice']['current_auc']:.2f}"
+drift_slice_base = f"{_dr['slice']['baseline_auc']:.2f}"
 M, CI, SZ, SP = m["metrics"], m["ci"], m["sizes"], m["splits"]
 vm, ch, th = m["val_metrics"], m["customer_holdout"], m["thresholds"]
 VC = m["val_comparison"]
@@ -110,7 +114,7 @@ body = f"""
 - The probabilities themselves run high because the calibration period had a different season's inactivity rate ({pc(SZ['cal']['prevalence'])} against {pc(SZ['test']['prevalence'])}). The ranking held up on the test period, with weaker results for small buyers (below); the percentage is best read as a priority score.
 - The model ranks regular, high-spend customers well (ROC-AUC about 0.75) and small or one-off buyers poorly (about 0.63 to 0.65).
 
-**System.** A FastAPI service with a calibrated probability, risk band and reason codes for each customer; a seven-page web interface (overview, interactive data exploration, model evidence, a retention worklist, customer pages with a live what-if, a try-it page, and an about page, each in light, dark or system theme); a Dockerfile and compose file; 43 automated tests. The Docker image has been built and run once on the development machine.
+**System.** A FastAPI service with a calibrated probability, risk band and reason codes for each customer; a seven-page web interface (overview, interactive data exploration, model evidence, a retention worklist, customer pages with a live what-if, a try-it page, and an about page, each in light, dark or system theme); a Dockerfile and compose file; 63 automated tests. The Docker image has been built and run once on the development machine.
 
 \\pagebreak
 
@@ -223,14 +227,20 @@ Per-customer reasons come from TreeSHAP contributions. Only inputs that raise a 
 | FastAPI service | `POST /score` (features in), `POST /score/transactions` (raw order lines in, features computed by the training code), `GET /worklist`, `GET /trust`, `GET /eda`, `GET /health`, `GET /model-info`. A customer who has not bought in 180 days returns "Not eligible" instead of a misleading low-risk score |
 | Web interface | Served by the API, seven pages: an **overview** with twelve KPIs, **explore data** (interactive EDA: activity over time, value concentration, distributions, lapse rate by month, a per-feature explorer and a correlation matrix), **model evidence** (the trust evidence in plain language), a **retention worklist** (filters, scatter, "top N calls" back-test, CSV export), a **customer** page (reasons, timeline, live what-if), **try it** and **about**. See the screenshots below |
 | Container | Dockerfile and compose file with only serving dependencies. **Built and run** with Docker Desktop (Linux containers): the 656 MB image builds, the container reports healthy, serves the interface and API, and the smoke test scores a customer through it |
-| Tests | 43 automated tests: cleaning rules, no-leakage checks, split embargo, metric sanity, API behaviour, and training-serving parity |
-| Tracking and monitoring | MLflow records each run; a Population Stability Index report tracks input drift |
+| Tests | 63 automated tests: cleaning rules, no-leakage checks, split embargo, metric sanity, API behaviour, and training-serving parity |
+| Tracking and monitoring | MLflow records each run. A drift alert (`python -m inactivity drift`) compares a window with a stored reference and returns an exit code (0 ok, 1 warning, 2 alert) |
 
 ![The web interface, light theme: the overview page with its twelve KPIs.](figures/ui_overview.png){{width=16}}
 
 ![The explore page: interactive EDA with measure and date-range controls (top of page shown).](figures/ui_explore.png){{width=16}}
 
 ![A customer page: reasons, comparison with other customers, timeline, and a live what-if that re-scores through the API.](figures/ui_customer.png){{width=13}}
+
+## 4.1 The drift alert
+
+A system that cannot tell you when it is wrong is not production-ready, so the service ships with a drift gate. It compares a window of scored customers with a **stored reference** (bin edges and baselines saved at training time) and checks three things: the distribution of each input (Population Stability Index), the distribution of the predicted risk, and one **domain slice metric**, the ROC-AUC for customers with a single purchase day, which is the model's weakest group. It writes a JSON decision and an Evidently HTML report, and returns an exit code (0 ok, 1 warning, 2 alert) that a scheduler can act on. The thresholds, the owner and the response for each status are in a one-page runbook (`docs/drift_runbook.md`).
+
+On the out-of-time test window the gate returns **ALERT**: 8 of 21 inputs are in major shift, mainly tenure-type features that grow with calendar time because the data starts in December 2009. The score distribution (PSI {drift_score_psi}) and the slice metric (AUC {drift_slice_cur} against a baseline of {drift_slice_base}) stay within their thresholds, and an unshifted control returns 0. So the alert fires for a known, documented reason, which is what the runbook is for.
 
 # 5. Results
 
@@ -249,6 +259,7 @@ All figures in this section are measured on the out-of-time test period: {len(SP
 | Logistic regression (calibrated) | {c('logreg_cal')} | {c('logreg_cal', 'pr_auc')} | {lift('logreg_cal')} |
 | Neural network (MLP challenger) | {c('mlp_challenger')} | {c('mlp_challenger', 'pr_auc')} | {lift('mlp_challenger')} |
 | Random forest | {c('random_forest')} | {c('random_forest', 'pr_auc')} | {lift('random_forest')} |
+| Support vector machine (RBF kernel) | {c('svm_rbf')} | {c('svm_rbf', 'pr_auc')} | {lift('svm_rbf')} |
 | BG/NBD benchmark | {c('bgnbd')} | {c('bgnbd', 'pr_auc')} | {lift('bgnbd')} |
 | **LightGBM (calibrated), served** | **{c('lgbm_cal')}** | **{c('lgbm_cal', 'pr_auc')}** | **{lift('lgbm_cal')}** |
 
@@ -262,6 +273,7 @@ All figures in this section are measured on the out-of-time test period: {len(SP
 | Logistic regression | {VC['logreg_cal']['roc_auc']:.3f} | {VC['logreg_cal']['pr_auc']:.3f} | {VC['logreg_cal']['lift_top']:.2f} |
 | Neural network (MLP) | {VC['mlp_challenger']['roc_auc']:.3f} | {VC['mlp_challenger']['pr_auc']:.3f} | {VC['mlp_challenger']['lift_top']:.2f} |
 | Random forest | {VC['random_forest']['roc_auc']:.3f} | {VC['random_forest']['pr_auc']:.3f} | {VC['random_forest']['lift_top']:.2f} |
+| Support vector machine (RBF) | {VC['svm_rbf']['roc_auc']:.3f} | {VC['svm_rbf']['pr_auc']:.3f} | {VC['svm_rbf']['lift_top']:.2f} |
 | BG/NBD benchmark | {VC['bgnbd']['roc_auc']:.3f} | {VC['bgnbd']['pr_auc']:.3f} | {VC['bgnbd']['lift_top']:.2f} |
 | LightGBM, served | {VC['lgbm_cal']['roc_auc']:.3f} | {VC['lgbm_cal']['pr_auc']:.3f} | {VC['lgbm_cal']['lift_top']:.2f} |
 
@@ -269,7 +281,7 @@ Validation and test agree on the main message: everything beats the recency rule
 
 - **Clearly better than the rule** a business would use today: paired ROC-AUC gain {dd('lgbm_cal-rule_recency')}. Also clearly better than a single tree ({dd('lgbm_cal-tree_depth4')}).
 - **Not clearly better than the other sensible models.** Against logistic regression the ROC-AUC gain is {dd('lgbm_cal-logreg_cal')} while the PR-AUC and lift gaps span zero; against the random forest it is {dd('lgbm_cal-random_forest')} with a PR-AUC gap that spans zero; against BG/NBD the gap spans zero.
-- **The tuned neural network did not beat LightGBM** (ROC-AUC gap {dd('lgbm_cal-mlp_challenger')}, PR-AUC gap {dd('lgbm_cal-mlp_challenger', 'pr_auc')}). This is the evidence for not using deep learning here.
+- **The tuned neural network did not beat LightGBM** (ROC-AUC gap {dd('lgbm_cal-mlp_challenger')}, PR-AUC gap {dd('lgbm_cal-mlp_challenger', 'pr_auc')}). This is the evidence for not using deep learning here. **The RBF support vector machine was weaker still** (ROC-AUC gap {dd('lgbm_cal-svm_rbf')}); it also gives no probabilities or reason codes.
 
 ## 5.2 If I can only call some customers, how many lapsing ones do I reach?
 
@@ -301,6 +313,29 @@ No. The inactivity rate was {pc(SZ['cal']['prevalence'])} in the calibration per
 ![ROC-AUC within customer groups on the test period (brass: below 0.70).](figures/fig_segments.png){{width=14}}
 
 No. Ranking is weakest for small and one-off buyers (ROC-AUC {seg[('Order history', 'One purchase day')]['roc_auc']:.2f} for one-purchase-day customers and {seg[('Spend tier (365 days)', 'Lower third')]['roc_auc']:.2f} for the lowest spend third) and strongest for regular, high-spend customers ({seg[('Order history', '5+ purchase days')]['roc_auc']:.2f} and {seg[('Spend tier (365 days)', 'Upper third')]['roc_auc']:.2f}). Predicted risk is above the actual rate in every group. For small and one-off buyers the model mostly separates them from regular customers rather than ranking within the group.
+
+## 5.5b Customer segments (unsupervised view)
+
+K-Means on eight behavioural inputs (standardised, fitted on the training period only, k chosen by silhouette; PCA is used only to draw the picture) splits customers into three types. The segments are descriptive: they do not feed the model.
+
+![Left: the three K-Means segments in two PCA dimensions. Right: how often each segment lapses, how often the model predicted it would, and how well the model ranks within it.](figures/fig_clusters.png){{width=16}}
+
+{{widths=3.6,2.4,2.4,2.4,5.2}}
+| Segment | Share of customers | Went quiet | Model predicted | Model ROC-AUC within segment |
+|---|---|---|---|---|
+| Core regulars | 4% | 2% | 10% | 0.85 |
+| Occasional buyers | 52% | 30% | 40% | 0.73 |
+| Fading | 44% | 64% | 74% | 0.63 |
+
+The picture agrees with the segment results in section 5.5. The model is strongest for the small group of core regulars and for occasional buyers, and weakest for the large "fading" group of customers with one or two orders and a long silence, where it also overstates risk. The segments make the weak spot concrete: it is not a few odd customers but nearly half of the active base.
+
+## 5.5c Statistical tests, feature selection and anomalies
+
+**Tests.** On one snapshot per customer (2,652 customers, 50% lapsed), Mann-Whitney U tests with Holm correction find that 17 of 21 inputs differ between customers who lapsed and those who stayed. Spend, order count and purchase days have the largest effects (a lapser scores higher than a stayer about 27% of the time, a medium effect). Revenue trend, recency-to-interval, interval variability and the UK flag show no effect. UK and non-UK lapse rates are 50% and 53% (difference -3.2%, 95% CI -10.7% to +4.2%, p = 0.40, Cramer's V 0.02): no evidence that country matters.
+
+**Feature selection.** Filter (mutual information), wrapper (RFE) and embedded (L1, LightGBM gain) selection were compared at 5, 8 and 12 inputs, chosen on training and judged on validation with the served hyperparameters. Five inputs reach 0.720 to 0.726 validation ROC-AUC against 0.723 for all 21; the differences are within noise. All 21 inputs are kept because dropping them gains nothing, but a 5-input model would serve about as well.
+
+**Anomalies.** An Isolation Forest fitted on the training period flags 2.0% of training rows and 12.6% of test rows: test-period customers are more often large accounts than training-period customers, a row-level sign of drift. Flagged customers lapse less (16% against 48%), are predicted at 25% against 58%, and are ranked better by the model (ROC-AUC 0.88 against 0.74), so the model is not failing on them. The top anomalies are very large wholesale accounts.
 
 ## 5.6 What does the model pay attention to?
 
@@ -360,7 +395,7 @@ The project delivers what the brief asks: a reproducible pipeline, an evaluated 
 ```
 pip install -r requirements.txt
 python -m inactivity all          # download, clean, train, evaluate, write artifacts and reports
-python -m pytest -q               # 43 tests, no download needed
+python -m pytest -q               # 63 tests, no download needed
 python -m inactivity serve        # API and web UI on http://localhost:8000
 python scripts/make_figures.py    # redraw the report figures
 python scripts/build_report.py    # rebuild this report
@@ -374,7 +409,7 @@ If the download is blocked, place `online_retail_II.xlsx` (from the UCI archive)
 | Path | Contents |
 |---|---|
 | `src/inactivity/` | pipeline, features, splits, models, evaluation, explanations, monitoring, API and web UI |
-| `tests/` | 43 automated tests |
+| `tests/` | 63 automated tests |
 | `artifacts/` | trained model bundle and the data files behind the UI |
 | `reports/` | metrics, plots, drift and data-quality outputs from the real-data run |
 | `docs/` | design decisions, technique justification, figures, this report |

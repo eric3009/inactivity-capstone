@@ -1,0 +1,243 @@
+{
+ "fixed_model": {
+  "colsample_bytree": 0.5076723361745393,
+  "learning_rate": 0.00661059122382018,
+  "min_child_samples": 70.0,
+  "num_leaves": 15.0,
+  "reg_lambda": 0.014214129913294574,
+  "subsample": 0.6908983435691453,
+  "subsample_freq": 1.0,
+  "n_estimators": 405.0,
+  "random_state": 42.0,
+  "verbose": -1.0,
+  "n_jobs": 2.0
+ },
+ "rows": [
+  {
+   "method": "All inputs (served set)",
+   "k": 21,
+   "val_auc": 0.7226236721275636,
+   "test_auc": 0.7708013130177823,
+   "features": "recency_days, tenure_days, n_purchase_days, inv_count_30, inv_count_90, inv_count_180, inv_count_365, inv_count_90_prev, freq_trend, rev_90_log, rev_180_log, rev_365_log, rev_trend, avg_invoice_value_180_log, avg_items_per_invoice_180, n_products_180, median_interval_days, interval_cv, recency_to_interval, return_rate_180, is_uk",
+   "val_vs_all": 0.0
+  },
+  {
+   "method": "Filter: mutual information",
+   "k": 5,
+   "val_auc": 0.706157645281261,
+   "test_auc": 0.7570255234579113,
+   "features": "rev_365_log, rev_180_log, avg_invoice_value_180_log, rev_trend, rev_90_log",
+   "val_vs_all": -0.016466026846302606
+  },
+  {
+   "method": "Filter: mutual information",
+   "k": 8,
+   "val_auc": 0.7198672497889145,
+   "test_auc": 0.7680674968551587,
+   "features": "rev_365_log, rev_180_log, avg_invoice_value_180_log, rev_trend, rev_90_log, avg_items_per_invoice_180, n_purchase_days, median_interval_days",
+   "val_vs_all": -0.002756422338649145
+  },
+  {
+   "method": "Filter: mutual information",
+   "k": 12,
+   "val_auc": 0.720493993830632,
+   "test_auc": 0.7684198679538805,
+   "features": "rev_365_log, rev_180_log, avg_invoice_value_180_log, rev_trend, rev_90_log, avg_items_per_invoice_180, n_purchase_days, median_interval_days, inv_count_180, return_rate_180, inv_count_365, inv_count_90",
+   "val_vs_all": -0.0021296782969316697
+  },
+  {
+   "method": "Wrapper: RFE with logistic regression",
+   "k": 5,
+   "val_auc": 0.7204333115224364,
+   "test_auc": 0.7658723752670324,
+   "features": "n_purchase_days, inv_count_90_prev, rev_180_log, freq_trend, n_products_180",
+   "val_vs_all": -0.0021903606051272284
+  },
+  {
+   "method": "Wrapper: RFE with logistic regression",
+   "k": 8,
+   "val_auc": 0.7276795861752625,
+   "test_auc": 0.7689326892301279,
+   "features": "n_purchase_days, inv_count_90_prev, rev_180_log, freq_trend, n_products_180, recency_to_interval, rev_365_log, tenure_days",
+   "val_vs_all": 0.005055914047698895
+  },
+  {
+   "method": "Wrapper: RFE with logistic regression",
+   "k": 12,
+   "val_auc": 0.7229606939032157,
+   "test_auc": 0.7722289295629975,
+   "features": "n_purchase_days, inv_count_90_prev, rev_180_log, freq_trend, n_products_180, recency_to_interval, rev_365_log, tenure_days, recency_days, median_interval_days, inv_count_365, avg_items_per_invoice_180",
+   "val_vs_all": 0.000337021775652091
+  },
+  {
+   "method": "Embedded: L1 logistic regression",
+   "k": 5,
+   "val_auc": 0.7263076705400163,
+   "test_auc": 0.7646459690205215,
+   "features": "n_purchase_days, freq_trend, rev_365_log, rev_180_log, recency_to_interval",
+   "val_vs_all": 0.0036839984124527048
+  },
+  {
+   "method": "Embedded: L1 logistic regression",
+   "k": 8,
+   "val_auc": 0.7273506604819748,
+   "test_auc": 0.7722788599671001,
+   "features": "n_purchase_days, freq_trend, rev_365_log, rev_180_log, recency_to_interval, n_products_180, median_interval_days, tenure_days",
+   "val_vs_all": 0.00472698835441121
+  },
+  {
+   "method": "Embedded: L1 logistic regression",
+   "k": 12,
+   "val_auc": 0.7205594265215399,
+   "test_auc": 0.7688999382196848,
+   "features": "n_purchase_days, freq_trend, rev_365_log, rev_180_log, recency_to_interval, n_products_180, median_interval_days, tenure_days, recency_days, avg_items_per_invoice_180, rev_90_log, is_uk",
+   "val_vs_all": -0.0020642456060236958
+  },
+  {
+   "method": "Embedded: LightGBM split gain",
+   "k": 5,
+   "val_auc": 0.7196546318530017,
+   "test_auc": 0.7681759324733712,
+   "features": "median_interval_days, rev_180_log, n_purchase_days, recency_to_interval, rev_90_log",
+   "val_vs_all": -0.002969040274561907
+  },
+  {
+   "method": "Embedded: LightGBM split gain",
+   "k": 8,
+   "val_auc": 0.7206746360721588,
+   "test_auc": 0.7683232226994275,
+   "features": "median_interval_days, rev_180_log, n_purchase_days, recency_to_interval, rev_90_log, rev_365_log, inv_count_90, avg_items_per_invoice_180",
+   "val_vs_all": -0.0019490360554048625
+  },
+  {
+   "method": "Embedded: LightGBM split gain",
+   "k": 12,
+   "val_auc": 0.7245046193640924,
+   "test_auc": 0.771242885959493,
+   "features": "median_interval_days, rev_180_log, n_purchase_days, recency_to_interval, rev_90_log, rev_365_log, inv_count_90, avg_items_per_invoice_180, return_rate_180, n_products_180, avg_invoice_value_180_log, interval_cv",
+   "val_vs_all": 0.0018809472365287627
+  }
+ ],
+ "votes_top_k": {
+  "n_purchase_days": 4,
+  "rev_180_log": 4,
+  "rev_365_log": 4,
+  "avg_items_per_invoice_180": 4,
+  "median_interval_days": 4,
+  "rev_90_log": 3,
+  "n_products_180": 3,
+  "recency_to_interval": 3,
+  "recency_days": 2,
+  "tenure_days": 2,
+  "inv_count_90": 2,
+  "inv_count_365": 2,
+  "freq_trend": 2,
+  "avg_invoice_value_180_log": 2,
+  "return_rate_180": 2,
+  "inv_count_180": 1,
+  "inv_count_90_prev": 1,
+  "rev_trend": 1,
+  "interval_cv": 1,
+  "is_uk": 1,
+  "inv_count_30": 0
+ },
+ "k_values": [
+  5,
+  8,
+  12
+ ],
+ "rankings": {
+  "Filter: mutual information": [
+   "rev_365_log",
+   "rev_180_log",
+   "avg_invoice_value_180_log",
+   "rev_trend",
+   "rev_90_log",
+   "avg_items_per_invoice_180",
+   "n_purchase_days",
+   "median_interval_days",
+   "inv_count_180",
+   "return_rate_180",
+   "inv_count_365",
+   "inv_count_90",
+   "recency_to_interval",
+   "interval_cv",
+   "n_products_180",
+   "freq_trend",
+   "inv_count_30",
+   "inv_count_90_prev",
+   "recency_days",
+   "tenure_days",
+   "is_uk"
+  ],
+  "Wrapper: RFE with logistic regression": [
+   "n_purchase_days",
+   "inv_count_90_prev",
+   "rev_180_log",
+   "freq_trend",
+   "n_products_180",
+   "recency_to_interval",
+   "rev_365_log",
+   "tenure_days",
+   "recency_days",
+   "median_interval_days",
+   "inv_count_365",
+   "avg_items_per_invoice_180",
+   "inv_count_30",
+   "avg_invoice_value_180_log",
+   "interval_cv",
+   "is_uk",
+   "inv_count_90",
+   "rev_trend",
+   "rev_90_log",
+   "inv_count_180",
+   "return_rate_180"
+  ],
+  "Embedded: L1 logistic regression": [
+   "n_purchase_days",
+   "freq_trend",
+   "rev_365_log",
+   "rev_180_log",
+   "recency_to_interval",
+   "n_products_180",
+   "median_interval_days",
+   "tenure_days",
+   "recency_days",
+   "avg_items_per_invoice_180",
+   "rev_90_log",
+   "is_uk",
+   "interval_cv",
+   "return_rate_180",
+   "inv_count_180",
+   "inv_count_90_prev",
+   "rev_trend",
+   "avg_invoice_value_180_log",
+   "inv_count_365",
+   "inv_count_30",
+   "inv_count_90"
+  ],
+  "Embedded: LightGBM split gain": [
+   "median_interval_days",
+   "rev_180_log",
+   "n_purchase_days",
+   "recency_to_interval",
+   "rev_90_log",
+   "rev_365_log",
+   "inv_count_90",
+   "avg_items_per_invoice_180",
+   "return_rate_180",
+   "n_products_180",
+   "avg_invoice_value_180_log",
+   "interval_cv",
+   "rev_trend",
+   "inv_count_365",
+   "recency_days",
+   "inv_count_180",
+   "tenure_days",
+   "is_uk",
+   "freq_trend",
+   "inv_count_90_prev",
+   "inv_count_30"
+  ]
+ }
+}

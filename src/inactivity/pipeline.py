@@ -17,7 +17,7 @@ from .features import FEATURES, build_dataset, compute_features
 from sklearn.metrics import log_loss
 
 from .models import (Calibrator, bgnbd_scores, choose_calibrator, fit_lgbm, fit_logreg, fit_mlp, fit_rf,
-                     fit_tree, rule_score)
+                     fit_svm, fit_tree, ladder_score, rule_score)
 from .monitoring import drift_report
 from .splits import BLOCKS, assign_blocks, make_snapshots, summarise, validate_embargo
 from .versions import current_versions
@@ -55,7 +55,8 @@ def run_experiment(tx: pd.DataFrame, cfg: dict, horizon: int, label: str = "y_in
     if ladder:     # the rest of the course model ladder: tree -> forest -> neural-network challenger
         ladder_models = {"tree_depth4": fit_tree(Xtr, ytr, Xva, yva, seed),
                          "random_forest": fit_rf(Xtr, ytr, Xva, yva, seed),
-                         "mlp_challenger": fit_mlp(Xtr, ytr, Xva, yva, seed)}
+                         "mlp_challenger": fit_mlp(Xtr, ytr, Xva, yva, seed),
+                         "svm_rbf": fit_svm(Xtr, ytr, Xva, yva, seed)}
 
     raw = {"logreg": logreg.predict_proba(Xte)[:, 1], "lgbm": lgbm.predict_proba(Xte)[:, 1]}
     cal_raw = {"logreg": logreg.predict_proba(Xca)[:, 1], "lgbm": lgbm.predict_proba(Xca)[:, 1]}
@@ -73,7 +74,7 @@ def run_experiment(tx: pd.DataFrame, cfg: dict, horizon: int, label: str = "y_in
     if bg is not None:
         scores["bgnbd"] = bg["test"]
     for name, mdl in ladder_models.items():
-        scores[name] = mdl.predict_proba(Xte)[:, 1]
+        scores[name] = ladder_score(mdl, Xte)
     prob_models = ("prevalence", "logreg_raw", "logreg_cal", "lgbm_raw", "lgbm_cal")
 
     share = md["top_share"]
@@ -109,7 +110,7 @@ def run_experiment(tx: pd.DataFrame, cfg: dict, horizon: int, label: str = "y_in
     # Every model scored on the validation period too, so the choice of served model rests on data that is not the test period.
     val_scores = {"rule_recency": rule_score(Xva), "logreg": logreg.predict_proba(Xva)[:, 1], "lgbm": pv}
     for name, mdl in ladder_models.items():
-        val_scores[name] = mdl.predict_proba(Xva)[:, 1]
+        val_scores[name] = ladder_score(mdl, Xva)
     bg_val = bgnbd_scores(compute_features(idx, max(blocks["train"]), sn["activity_window_days"]), {"val": parts["val"]}, horizon)
     if bg_val is not None:
         val_scores["bgnbd"] = bg_val["val"]
@@ -315,4 +316,6 @@ def run(cfg: dict, synthetic: bool = False, sensitivity: bool = True) -> dict:
     _track(cfg, reports, art)
     from .uidata import build_ui_data
     build_ui_data(cfg, tx, art, reports)
+    from .drift import build_reference
+    build_reference(cfg, tx, art)
     return {"main": main, "sensitivity": sens, "bundle": bundle}

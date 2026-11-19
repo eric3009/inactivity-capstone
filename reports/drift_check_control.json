@@ -1,0 +1,147 @@
+{
+ "status": "OK",
+ "exit_code": 0,
+ "reasons": [
+  "all inputs, scores and the slice metric are within thresholds"
+ ],
+ "features": [
+  {
+   "feature": "rev_trend",
+   "psi": 0.014337902900502396,
+   "status": "ok"
+  },
+  {
+   "feature": "recency_days",
+   "psi": 0.008812348291588676,
+   "status": "ok"
+  },
+  {
+   "feature": "recency_to_interval",
+   "psi": 0.008302797835772244,
+   "status": "ok"
+  },
+  {
+   "feature": "rev_180_log",
+   "psi": 0.008255319323642043,
+   "status": "ok"
+  },
+  {
+   "feature": "tenure_days",
+   "psi": 0.008112361351910223,
+   "status": "ok"
+  },
+  {
+   "feature": "rev_365_log",
+   "psi": 0.00799841248361753,
+   "status": "ok"
+  },
+  {
+   "feature": "rev_90_log",
+   "psi": 0.00664977159535178,
+   "status": "ok"
+  },
+  {
+   "feature": "n_products_180",
+   "psi": 0.006573525036554862,
+   "status": "ok"
+  },
+  {
+   "feature": "interval_cv",
+   "psi": 0.005831333929669952,
+   "status": "ok"
+  },
+  {
+   "feature": "freq_trend",
+   "psi": 0.0050287631814183945,
+   "status": "ok"
+  },
+  {
+   "feature": "median_interval_days",
+   "psi": 0.00414085052171111,
+   "status": "ok"
+  },
+  {
+   "feature": "n_purchase_days",
+   "psi": 0.0032380299722651195,
+   "status": "ok"
+  },
+  {
+   "feature": "avg_items_per_invoice_180",
+   "psi": 0.002723908149637426,
+   "status": "ok"
+  },
+  {
+   "feature": "avg_invoice_value_180_log",
+   "psi": 0.002658400439972523,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_365",
+   "psi": 0.002028959531487761,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_90",
+   "psi": 0.0019608584689174697,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_180",
+   "psi": 0.0019476455688008858,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_90_prev",
+   "psi": 0.0016869127098912617,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_30",
+   "psi": 0.0007454510175554772,
+   "status": "ok"
+  },
+  {
+   "feature": "return_rate_180",
+   "psi": 0.0005461374511135848,
+   "status": "ok"
+  },
+  {
+   "feature": "is_uk",
+   "psi": 0.000427896290044487,
+   "status": "ok"
+  }
+ ],
+ "score_psi": null,
+ "slice": null,
+ "rows": 4455,
+ "inputs_major": 0,
+ "inputs_moderate": 0,
+ "window": "control: random halves of the reference window",
+ "reference_window": {
+  "features": [
+   "2010-02-28",
+   "2010-05-31"
+  ],
+  "scores_and_slice": [
+   "2010-08-31",
+   "2010-10-31"
+  ]
+ },
+ "model_version": "20261004-1a7f6e01",
+ "checked_at": "2026-10-21T05:21:05.751754+00:00",
+ "thresholds": {
+  "bins": 10,
+  "feature_psi_warn": 0.1,
+  "feature_psi_alert": 0.25,
+  "features_in_alert_to_fail": 3,
+  "score_psi_warn": 0.1,
+  "score_psi_alert": 0.25,
+  "min_rows": 300,
+  "slice": {
+   "name": "one_purchase_day",
+   "auc_drop_warn": 0.03,
+   "auc_drop_alert": 0.06,
+   "min_rows": 150
+  }
+ }
+}

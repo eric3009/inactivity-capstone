@@ -115,7 +115,7 @@ def test_trust_endpoint_has_the_evidence_the_ui_needs(client):
     assert g["x"][0] == 0 and g["x"][-1] == 1 and g["lgbm_cal"][-1] == pytest.approx(1.0)
     assert all(a <= b + 1e-12 for a, b in zip(g["lgbm_cal"], g["lgbm_cal"][1:]))      # a gains curve never falls
     assert len(t["reliability"]["lgbm_cal"]) == 10
-    assert {"tree_depth4", "random_forest", "mlp_challenger"} <= set(t["metrics"])            # the course model ladder
+    assert {"tree_depth4", "random_forest", "mlp_challenger", "svm_rbf"} <= set(t["metrics"])            # the course model ladder
     assert all(r["auc_drop"] is not None for r in t["importance"])                           # permutation importance
     assert t["segments"] and all(0 <= r["roc_auc"] <= 1 for r in t["segments"])
 

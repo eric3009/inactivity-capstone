@@ -1,0 +1,155 @@
+{
+ "status": "ALERT",
+ "exit_code": 2,
+ "reasons": [
+  "8 inputs in major shift (PSI >= 0.25): tenure_days, n_purchase_days, median_interval_days, interval_cv, recency_to_interval, inv_count_365, rev_365_log, rev_trend"
+ ],
+ "features": [
+  {
+   "feature": "tenure_days",
+   "psi": 2.3003406769676342,
+   "status": "alert"
+  },
+  {
+   "feature": "n_purchase_days",
+   "psi": 1.085322550157282,
+   "status": "alert"
+  },
+  {
+   "feature": "median_interval_days",
+   "psi": 0.9709174950564724,
+   "status": "alert"
+  },
+  {
+   "feature": "interval_cv",
+   "psi": 0.9643883751437123,
+   "status": "alert"
+  },
+  {
+   "feature": "recency_to_interval",
+   "psi": 0.6842180734120531,
+   "status": "alert"
+  },
+  {
+   "feature": "inv_count_365",
+   "psi": 0.582841072723675,
+   "status": "alert"
+  },
+  {
+   "feature": "rev_365_log",
+   "psi": 0.3651652026993639,
+   "status": "alert"
+  },
+  {
+   "feature": "rev_trend",
+   "psi": 0.2630965836676723,
+   "status": "alert"
+  },
+  {
+   "feature": "inv_count_90_prev",
+   "psi": 0.23792637500645622,
+   "status": "warn"
+  },
+  {
+   "feature": "freq_trend",
+   "psi": 0.1935282766973101,
+   "status": "warn"
+  },
+  {
+   "feature": "recency_days",
+   "psi": 0.10393463803194525,
+   "status": "warn"
+  },
+  {
+   "feature": "inv_count_90",
+   "psi": 0.08687170546369337,
+   "status": "ok"
+  },
+  {
+   "feature": "rev_90_log",
+   "psi": 0.07405116793369934,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_30",
+   "psi": 0.02472135447982001,
+   "status": "ok"
+  },
+  {
+   "feature": "is_uk",
+   "psi": 0.011840802041818569,
+   "status": "ok"
+  },
+  {
+   "feature": "inv_count_180",
+   "psi": 0.009624020250016123,
+   "status": "ok"
+  },
+  {
+   "feature": "avg_invoice_value_180_log",
+   "psi": 0.007692337354155537,
+   "status": "ok"
+  },
+  {
+   "feature": "return_rate_180",
+   "psi": 0.007463099106734983,
+   "status": "ok"
+  },
+  {
+   "feature": "n_products_180",
+   "psi": 0.007064455957192323,
+   "status": "ok"
+  },
+  {
+   "feature": "rev_180_log",
+   "psi": 0.0059576040271219766,
+   "status": "ok"
+  },
+  {
+   "feature": "avg_items_per_invoice_180",
+   "psi": 0.0025890339294107707,
+   "status": "ok"
+  }
+ ],
+ "score_psi": 0.06903751140777664,
+ "slice": {
+  "name": "one_purchase_day",
+  "baseline_auc": 0.5588034778346525,
+  "current_auc": 0.6376930508497639,
+  "baseline_share": 0.31322193562857464,
+  "current_share": 0.16085271317829458,
+  "drop": -0.07888957301511146
+ },
+ "rows": 8256,
+ "inputs_major": 8,
+ "inputs_moderate": 3,
+ "window": "2011-06-30 to 2011-08-31",
+ "reference_window": {
+  "features": [
+   "2010-02-28",
+   "2010-05-31"
+  ],
+  "scores_and_slice": [
+   "2010-08-31",
+   "2010-10-31"
+  ]
+ },
+ "model_version": "20261004-1a7f6e01",
+ "checked_at": "2026-10-21T05:21:48.395806+00:00",
+ "thresholds": {
+  "bins": 10,
+  "feature_psi_warn": 0.1,
+  "feature_psi_alert": 0.25,
+  "features_in_alert_to_fail": 3,
+  "score_psi_warn": 0.1,
+  "score_psi_alert": 0.25,
+  "min_rows": 300,
+  "slice": {
+   "name": "one_purchase_day",
+   "auc_drop_warn": 0.03,
+   "auc_drop_alert": 0.06,
+   "min_rows": 150
+  }
+ },
+ "evidently_report": "reports/drift_report.html"
+}

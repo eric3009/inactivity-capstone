@@ -43,6 +43,21 @@ modelling:
 sensitivity:
   horizons: [60, 90, 120]
 
+monitoring:
+  # Drift alert (python -m inactivity drift). Exit code: 0 ok, 1 warning, 2 alert. See docs/drift_runbook.md.
+  bins: 10
+  feature_psi_warn: 0.10          # PSI per input: 0.10 moderate, 0.25 major (the usual convention)
+  feature_psi_alert: 0.25
+  features_in_alert_to_fail: 3    # alert when this many inputs are in major shift
+  score_psi_warn: 0.10
+  score_psi_alert: 0.25
+  min_rows: 300                   # smaller windows are reported as a warning, not assessed
+  slice:
+    name: one_purchase_day        # customers with a single purchase day: the model's weakest group
+    auc_drop_warn: 0.03
+    auc_drop_alert: 0.06
+    min_rows: 150
+
 tracking:
   mlflow: true
   experiment: inactivity-capstone

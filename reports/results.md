@@ -27,6 +27,7 @@ Snapshots dropped by the label-maturity embargo: 2010-06-30, 2010-07-31, 2010-11
 | tree_depth4 | 0.731 [0.716, 0.746] | 0.628 [0.608, 0.650] | 1.709 [1.562, 1.749] | n/a | n/a | n/a | n/a |
 | random_forest | 0.766 [0.753, 0.781] | 0.689 [0.665, 0.712] | 1.800 [1.717, 1.900] | n/a | n/a | n/a | n/a |
 | mlp_challenger | 0.759 [0.744, 0.773] | 0.662 [0.637, 0.684] | 1.619 [1.529, 1.711] | n/a | n/a | n/a | n/a |
+| svm_rbf | 0.699 [0.682, 0.714] | 0.642 [0.618, 0.667] | 1.696 [1.597, 1.788] | n/a | n/a | n/a | n/a |
 
 ## Model selection on the validation period (before the test period was used)
 
@@ -38,6 +39,7 @@ Snapshots dropped by the label-maturity embargo: 2010-06-30, 2010-07-31, 2010-11
 | mlp_challenger | 0.708 | 0.594 | 1.439 |
 | bgnbd | 0.703 | 0.605 | 1.552 |
 | tree_depth4 | 0.701 | 0.597 | 1.439 |
+| svm_rbf | 0.690 | 0.606 | 1.526 |
 | rule_recency | 0.609 | 0.542 | 1.429 |
 
 ## Honesty checks
@@ -55,6 +57,7 @@ Snapshots dropped by the label-maturity embargo: 2010-06-30, 2010-07-31, 2010-11
 | lgbm_cal-mlp_challenger | [+0.004, +0.019] | [+0.012, +0.048] | [+0.052, +0.277] |
 | lgbm_cal-random_forest | [+0.001, +0.007] | [-0.000, +0.008] | [-0.055, +0.025] |
 | lgbm_cal-rule_recency | [+0.094, +0.123] | [+0.078, +0.118] | [+0.140, +0.337] |
+| lgbm_cal-svm_rbf | [+0.063, +0.083] | [+0.038, +0.064] | [+0.023, +0.166] |
 | lgbm_cal-tree_depth4 | [+0.030, +0.047] | [+0.053, +0.078] | [+0.057, +0.216] |
 
 ## Sensitivity (LightGBM, calibrated; 20 search trials, no bootstrap)

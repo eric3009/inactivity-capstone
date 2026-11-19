@@ -43,7 +43,7 @@ pip install -r requirements.lock.txt && pip install -e . --no-deps   # exact tes
 
 python -m inactivity all        # download data, clean, train, evaluate, write artifacts and reports
 python -m inactivity predict --date 2011-08-31      # score every customer at a date (no retraining)
-python -m pytest -q             # 45 tests, no data download needed
+python -m pytest -q             # 63 tests, no data download needed
 python -m inactivity serve      # API on http://localhost:8000  (docs at /docs)
 ```
 
@@ -167,6 +167,7 @@ ID; 34,337 duplicates were removed). Eligible customer-snapshot rows: train 8,91
 | Logistic regression (calibrated) | 0.760 [0.746, 0.775] | 0.686 [0.663, 0.710] | 1.79 |
 | Neural network (MLP challenger) | 0.759 [0.744, 0.773] | 0.662 [0.637, 0.684] | 1.62 |
 | Random forest | 0.766 [0.753, 0.781] | 0.689 [0.665, 0.712] | 1.80 |
+| Support vector machine (RBF kernel) | 0.699 [0.682, 0.714] | 0.642 [0.618, 0.667] | 1.70 |
 | BG/NBD benchmark | 0.765 [0.751, 0.779] | 0.696 [0.673, 0.719] | 1.82 |
 | **LightGBM (calibrated), served by the API** | **0.771 [0.757, 0.785]** | **0.693 [0.670, 0.715]** | **1.79** |
 
@@ -230,6 +231,47 @@ Full reasoning is in [`docs/technique_justification.md`](docs/technique_justific
 tested and rejected, and where the project departs from course advice) and [`docs/design_decisions.md`](docs/design_decisions.md)
 (framing and serving decisions).
 
+## Customer segments
+
+`python -m inactivity segments` fits K-Means (standardised inputs, k chosen by silhouette, PCA for the picture) on the training
+period and profiles the segments on the test period (`reports/segments.json`, `reports/segments.csv`). With k = 3:
+core regulars (4% of customers) lapse 2% of the time, occasional buyers (52%) 30%,
+and fading customers (44%) 64%. The served model ranks fading customers worst
+(ROC-AUC 0.63) and overstates their risk (74% predicted). The segments are descriptive and do not feed the model.
+
+## Statistical tests, feature selection and anomalies
+
+Three further analyses, each run on the real data (`reports/hypothesis_tests.json`, `reports/feature_selection.json`, `reports/anomalies.json`):
+
+- `python -m inactivity stats`: Mann-Whitney U tests for all 21 inputs, lapsed against stayed, on one snapshot per customer (so rows are
+  independent), Holm-corrected, with an effect size. 17 of 21 differ; the largest effects are spend, order count and purchase days
+  (a lapser scores higher about 27% of the time, a medium effect). Trend, recency-to-interval, interval variability and UK flag show no effect.
+  UK against non-UK lapse rates (A/B-style two-proportion z-test and chi-square): 50% vs 53%, p = 0.40, Cramer's V 0.02, no difference.
+- `python -m inactivity select`: filter (mutual information), wrapper (RFE) and embedded (L1, LightGBM gain) selection at 5, 8 and 12 inputs,
+  chosen on the training period and judged on validation. Five inputs reach 0.720-0.726 against 0.723 for all 21; the differences are
+  within noise, so a 5-input model would serve about as well.
+- `python -m inactivity anomalies`: an Isolation Forest fitted on the training period flags 2% of training rows but 12.6% of test rows,
+  a row-level sign that customers have moved (larger accounts). The flagged customers lapse less (16% vs 48%) and the model ranks them better (ROC-AUC 0.88 vs 0.74).
+
+## Continuous integration
+
+`.github/workflows/tests.yml` runs on every push and pull request: the test suite on Python 3.12, then a Docker job that builds the image,
+starts it, waits for `/health` and scores one customer. It has not yet run on GitHub: push the repository to see the first result.
+
+## Drift alert
+
+`python -m inactivity drift` compares a window against a **stored reference** (bin edges and baselines in
+`artifacts/drift_reference.json`, rebuilt with `drift --init`) and returns an **exit code**: 0 ok, 1 warning, 2 alert.
+It checks input drift (PSI per feature), score drift, and one **domain slice metric** (ROC-AUC for single-purchase-day
+customers, the weakest group), and writes `reports/drift_check.json` and an Evidently HTML report
+(`reports/drift_report.html`). `drift --control` runs an unshifted control that must return 0; `--window latest` checks
+the newest snapshots. Thresholds are in `configs/config.yaml` and the response plan (owner, thresholds, actions) is in
+[`docs/drift_runbook.md`](docs/drift_runbook.md).
+
+On the out-of-time test window the gate returns **ALERT** (8 inputs in major shift, mainly tenure-type features that grow
+with calendar time because the data starts in Dec 2009), while the score distribution and the slice metric stay within
+thresholds. The unshifted control returns 0.
+
 ## Report and slides
 
 - [`docs/Final_Report.docx`](docs/Final_Report.docx): the final report (problem framing, data, method, system, results, technique justification, limits).
@@ -247,13 +289,13 @@ src/inactivity/
   models.py                  baselines, logistic regression, LightGBM, BG/NBD, calibration
   evaluate.py                metrics, calibration diagnostics, clustered bootstrap
   explain.py                 TreeSHAP reason codes
-  monitoring.py              PSI drift report
+  monitoring.py, drift.py    PSI helpers; drift alert (stored reference, Evidently report, slice metric, exit-code gate)
   pipeline.py, predict.py, cli.py   orchestration, batch prediction and command line
   versions.py                library versions stored with the model and checked when serving
   service/                   FastAPI app, schemas and the single-page web UI (static/index.html)
   demo.py, uidata.py         build the demo customers, worklist and trust-page data for the UI
   synthetic.py               generated raw-format data for tests and offline smoke runs
-tests/                       45 tests: cleaning, leakage, embargo, metrics, API and training/serving parity
+tests/                       63 tests: cleaning, leakage, embargo, metrics, API and training/serving parity
 artifacts/                   trained bundle (committed so the container builds without retraining)
 reports/                     metrics, plots, drift and data-quality outputs written by the pipeline
 Dockerfile, docker-compose.yml, requirements*.txt, Makefile, scripts/

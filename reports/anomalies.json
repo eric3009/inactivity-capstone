@@ -1,0 +1,185 @@
+{
+ "contamination": 0.02,
+ "train_flagged_share": 0.020089786756453423,
+ "test_flagged_share": 0.12645348837209303,
+ "features": [
+  "recency_days",
+  "inv_count_90",
+  "inv_count_365",
+  "rev_180_log",
+  "rev_365_log",
+  "median_interval_days",
+  "n_purchase_days",
+  "n_products_180"
+ ],
+ "flagged": {
+  "rows": 1044,
+  "lapse_rate": 0.15613026819923373,
+  "mean_predicted": 0.25141505053534,
+  "model_roc_auc": 0.884382638245719,
+  "median_spend_180": 2252.15,
+  "median_orders_180": 6.0,
+  "median_recency_days": 21.0
+ },
+ "rest": {
+  "rows": 7212,
+  "lapse_rate": 0.480865224625624,
+  "mean_predicted": 0.5773813919571781,
+  "model_roc_auc": 0.7361211617942803,
+  "median_spend_180": 420.4699999999999,
+  "median_orders_180": 1.0,
+  "median_recency_days": 54.0
+ },
+ "top": [
+  {
+   "customer_id": "14911",
+   "snapshot": "2011-08-31",
+   "anomaly_score": 0.816666198825656,
+   "spend_180": 53757.57999999998,
+   "orders_180": 78,
+   "recency_days": 5,
+   "predicted": 0.07804276523270891,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14911",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.815929804133168,
+   "spend_180": 43521.00000000004,
+   "orders_180": 72,
+   "recency_days": 0,
+   "predicted": 0.07444411767440194,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14911",
+   "snapshot": "2011-06-30",
+   "anomaly_score": 0.8148264569320729,
+   "spend_180": 36185.659999999974,
+   "orders_180": 63,
+   "recency_days": 0,
+   "predicted": 0.07389599420675147,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "17841",
+   "snapshot": "2011-08-31",
+   "anomaly_score": 0.802606636526959,
+   "spend_180": 16587.64000000001,
+   "orders_180": 55,
+   "recency_days": 3,
+   "predicted": 0.07164189022768606,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "17841",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.8015213056792482,
+   "spend_180": 14256.369999999997,
+   "orders_180": 53,
+   "recency_days": 0,
+   "predicted": 0.07290787751995327,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "12748",
+   "snapshot": "2011-08-31",
+   "anomaly_score": 0.8004374424783214,
+   "spend_180": 7942.850000000007,
+   "orders_180": 82,
+   "recency_days": 1,
+   "predicted": 0.07511107285643587,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "12748",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.8002569411599895,
+   "spend_180": 7406.77,
+   "orders_180": 75,
+   "recency_days": 0,
+   "predicted": 0.07336843238852793,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "17841",
+   "snapshot": "2011-06-30",
+   "anomaly_score": 0.8002569411599895,
+   "spend_180": 12128.679999999991,
+   "orders_180": 50,
+   "recency_days": 0,
+   "predicted": 0.07492111889149278,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14646",
+   "snapshot": "2011-06-30",
+   "anomaly_score": 0.7993550449395423,
+   "spend_180": 126867.2299999999,
+   "orders_180": 30,
+   "recency_days": 2,
+   "predicted": 0.08414215591356827,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "13089",
+   "snapshot": "2011-06-30",
+   "anomaly_score": 0.7993550449395423,
+   "spend_180": 25670.96000000001,
+   "orders_180": 49,
+   "recency_days": 8,
+   "predicted": 0.07439418212721217,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "12748",
+   "snapshot": "2011-06-30",
+   "anomaly_score": 0.7991747877054728,
+   "spend_180": 6742.440000000006,
+   "orders_180": 66,
+   "recency_days": 0,
+   "predicted": 0.07336843238852793,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14156",
+   "snapshot": "2011-08-31",
+   "anomaly_score": 0.7988472681935136,
+   "spend_180": 56348.95000000003,
+   "orders_180": 27,
+   "recency_days": 14,
+   "predicted": 0.08276147962428984,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14156",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.7970476678329459,
+   "spend_180": 62718.090000000026,
+   "orders_180": 28,
+   "recency_days": 0,
+   "predicted": 0.07829020316734674,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "13089",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.7955781670529618,
+   "spend_180": 23819.159999999985,
+   "orders_180": 45,
+   "recency_days": 2,
+   "predicted": 0.07513599079183526,
+   "went_quiet": 0
+  },
+  {
+   "customer_id": "14646",
+   "snapshot": "2011-07-31",
+   "anomaly_score": 0.7934606201091379,
+   "spend_180": 100401.5699999999,
+   "orders_180": 27,
+   "recency_days": 11,
+   "predicted": 0.08422417446645299,
+   "went_quiet": 0
+  }
+ ]
+}

@@ -165,6 +165,30 @@ def fit_mlp(Xtr, ytr, Xva, yva, seed=42):
     return best
 
 
+def fit_svm(Xtr, ytr, Xva, yva, seed=42):
+    """Soft-margin SVM with an RBF kernel (Session 5): C chosen on validation ROC-AUC, scored by its margin distance.
+
+    The margin score ranks customers but is not a probability, so the SVM is compared on discrimination only.
+    """
+    from sklearn.metrics import roc_auc_score
+    from sklearn.svm import SVC
+    best, best_auc = None, -np.inf
+    for C in (0.1, 1.0, 10.0):
+        pipe = make_pipeline(_imputer(), StandardScaler(), SVC(kernel="rbf", C=C, gamma="scale", random_state=seed))
+        pipe.fit(Xtr, ytr)
+        auc = roc_auc_score(yva, pipe.decision_function(Xva))
+        if auc > best_auc:
+            best, best_auc = pipe, auc
+    return best
+
+
+def ladder_score(model, X) -> np.ndarray:
+    """Probability of the positive class when the model has one, otherwise the SVM margin distance."""
+    if hasattr(model, "predict_proba"):
+        return model.predict_proba(X)[:, 1]
+    return np.asarray(model.decision_function(X), dtype=float)
+
+
 # ------------------------------------------------------------------ BG/NBD benchmark
 def bgnbd_scores(fit_frame: pd.DataFrame, evals: dict[str, pd.DataFrame], horizon: int):
     """Probabilistic benchmark: BG/NBD ranked by expected purchases over the horizon.

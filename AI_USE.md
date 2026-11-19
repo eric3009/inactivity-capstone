@@ -46,4 +46,6 @@ What I personally read, ran or re-derived, and what I can explain and defend:
 
 I understand this project is individually assessed and I can explain and defend every part of it.
 
-Name: Eric Muriuki Kiama (120890)   Date: ____________   Signature: ____________
+Name: Eric Muriuki Kiama (120890)   Date: 19 November 2026
+
+Signature: <img src="docs/figures/signature.png" alt="Signature of Eric Muriuki Kiama" width="130">
